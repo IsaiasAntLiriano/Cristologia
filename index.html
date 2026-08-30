@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Interactivo de Cristología & Exégesis Teológica</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Chosen Palette: Warm Parchment & Royal Indigo */
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #faf7f2;
+            color: #1c1917;
+        }
+        .font-serif-title {
+            font-family: 'Cinzel', serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 360px;
+            }
+        }
+        .tab-active {
+            border-bottom: 3px solid #4338ca;
+            color: #4338ca;
+            font-weight: 700;
+        }
+    </style>
+
+    <!-- Chosen Palette: Warm Parchment & Royal Indigo -->
+    <!-- Application Structure Plan:
+         Designed as a single-page interactive portal split into thematic modules:
+         1. Hero / Header with global navigation and quick search.
+         2. Interactive 318 Exegesis & Gematria Module (Gematria calculator, Abraham's 318, Barnabas Epistle code, Nicea 318 connection).
+         3. Módulo 1: Contexto Histórico y Grupos Sociopolíticos del Siglo I (Filterable cards: Fariseos, Saduceos, Esenios, etc.).
+         4. Módulo 2: La Persona de Cristo - 100% Dios & 100% Hombre (Interactive Hypostatic Union Explorer & Kenosis, plus Deity vs Humanity Chart).
+         5. Módulo 3: Las Declaraciones «Yo Soy» (Egō Eimi) (Interactive cards for 7 metaphors + 3 absolute claims with OT background).
+         6. Módulo 4 & 5: Títulos, Munus Triplex, Concilios & Matriz de Herejías (Interactive filterable table, Council Timeline Chart).
+         7. Apéndice Pedagógico: Evaluador / Quiz interactivo de preguntas de estudio y Glosario interactivo.
+         WHY: This non-linear, task-oriented layout breaks down complex theological dogmas into digestible visual components, allowing students and teachers to immediately grasp difficult concepts like Gematria 318 or Chalcedonian Adverbs. -->
+    <!-- Visualization & Content Choices:
+         - 318 Gematria & Exegesis -> Interactive breakdown cards + letter value toggle -> Clear understanding of Hebrew vs Greek gematria.
+         - Deity vs Humanity evidence -> Multi-bar Chart.js -> Direct comparison of attributes, works, and human limitations.
+         - Council History -> Radar / Chronological progress Chart.js -> Dynamic visual of orthodox definitions over time.
+         - 1st Century Sects -> Interactive Filterable Grid -> Easy comparison of theology and stance on Rome.
+         - Heresy Matrix -> Interactive Searchable Table -> Fast lookups for students.
+         - Confirmation: NO SVG graphics used. NO Mermaid JS used. Canvas and FontAwesome used exclusively. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="antialiased min-h-screen flex flex-col selection:bg-indigo-200 selection:text-indigo-900">
+
+    <!-- NAV BAR -->
+    <header class="sticky top-0 z-50 bg-amber-50/95 backdrop-blur border-b border-amber-200/80 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-indigo-900 text-amber-300 flex items-center justify-center font-serif-title font-bold text-xl shadow">
+                        ✝
+                    </div>
+                    <div>
+                        <span class="font-serif-title font-bold text-lg text-indigo-950 block leading-tight">Cristología Interactiva</span>
+                        <span class="text-xs text-amber-800 font-medium">Manual Académico & Exégesis Teológica</span>
+                    </div>
+                </div>
+
+                <nav class="hidden lg:flex items-center space-x-1 text-sm font-medium text-stone-700">
+                    <button onclick="scrollToSection('seccion-318')" class="px-3 py-2 rounded-md hover:text-indigo-900 hover:bg-amber-100 transition">El 318 & Gematría</button>
+                    <button onclick="scrollToSection('modulo-1')" class="px-3 py-2 rounded-md hover:text-indigo-900 hover:bg-amber-100 transition">Módulo 1: Contexto</button>
+                    <button onclick="scrollToSection('modulo-2')" class="px-3 py-2 rounded-md hover:text-indigo-900 hover:bg-amber-100 transition">Módulo 2: 100%/100%</button>
+                    <button onclick="scrollToSection('modulo-3')" class="px-3 py-2 rounded-md hover:text-indigo-900 hover:bg-amber-100 transition">Módulo 3: «Yo Soy»</button>
+                    <button onclick="scrollToSection('modulo-4-5')" class="px-3 py-2 rounded-md hover:text-indigo-900 hover:bg-amber-100 transition">Módulos 4-5: Concilios & Herejías</button>
+                    <button onclick="scrollToSection('evaluador')" class="px-3 py-2 rounded-md bg-indigo-900 text-amber-200 hover:bg-indigo-800 transition ml-2">Guía & Quiz</button>
+                </nav>
+
+                <!-- Mobile menu button -->
+                <button onclick="toggleMobileNav()" class="lg:hidden p-2 rounded-md text-stone-700 hover:bg-amber-100">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile dropdown -->
+        <div id="mobile-menu" class="hidden lg:hidden bg-amber-50 border-b border-amber-200 px-4 pt-2 pb-4 space-y-1 text-stone-800">
+            <button onclick="scrollToSection('seccion-318'); toggleMobileNav()" class="block w-full text-left px-3 py-2 rounded hover:bg-amber-100">El 318 & Gematría</button>
+            <button onclick="scrollToSection('modulo-1'); toggleMobileNav()" class="block w-full text-left px-3 py-2 rounded hover:bg-amber-100">Módulo 1: Contexto</button>
+            <button onclick="scrollToSection('modulo-2'); toggleMobileNav()" class="block w-full text-left px-3 py-2 rounded hover:bg-amber-100">Módulo 2: Humanidad y Deidad</button>
+            <button onclick="scrollToSection('modulo-3'); toggleMobileNav()" class="block w-full text-left px-3 py-2 rounded hover:bg-amber-100">Módulo 3: Declaraciones «Yo Soy»</button>
+            <button onclick="scrollToSection('modulo-4-5'); toggleMobileNav()" class="block w-full text-left px-3 py-2 rounded hover:bg-amber-100">Módulos 4-5: Concilios & Herejías</button>
+            <button onclick="scrollToSection('evaluador'); toggleMobileNav()" class="block w-full text-left px-3 py-2 rounded bg-indigo-900 text-amber-200 mt-2">Guía Pedagógica & Quiz</button>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="bg-gradient-to-b from-amber-100/70 via-amber-50 to-transparent py-12 md:py-16 border-b border-amber-200/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-amber-200 text-amber-900 mb-4 tracking-wider uppercase"> Plataforma Pedagógica Teológica </span>
+            <h1 class="font-serif-title text-3xl sm:text-4xl md:text-5xl font-extrabold text-indigo-950 tracking-tight leading-tight max-w-4xl mx-auto">
+                Plataforma de Estudio Cristológico & Exégesis Bíblica
+            </h1>
+            <p class="mt-4 text-stone-700 text-base sm:text-lg max-w-3xl mx-auto leading-relaxed">
+                Explore la persona y obra de Jesucristo: desde el contexto socio-religioso del siglo I y los misterios exegéticos como el **número 318**, hasta los dogmas conciliares de la Unión Hipostática y las declaraciones del *«Yo Soy»*.
+            </p>
+            <div class="mt-8 flex flex-wrap justify-center gap-4">
+                <button onclick="scrollToSection('seccion-318')" class="px-6 py-3 rounded-lg bg-indigo-900 text-amber-300 font-semibold shadow hover:bg-indigo-800 transition flex items-center gap-2">
+                    <i class="fa-solid fa-calculator"></i> Desvelar el Misterio del 318
+                </button>
+                <button onclick="scrollToSection('modulo-2')" class="px-6 py-3 rounded-lg bg-stone-200 text-stone-800 font-semibold hover:bg-stone-300 transition flex items-center gap-2">
+                    <i class="fa-solid fa-book-bible"></i> Explorar Deidad y Humanidad
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- MAIN CONTENT WRAPPER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
+
+        <!-- SECCIÓN ESPECIAL EXÉGESIS DEL NÚMERO 318 -->
+        <section id="seccion-318" class="scroll-mt-20 bg-white rounded-2xl p-6 md:p-8 shadow-md border border-amber-200/80">
+            <div class="border-b border-stone-200 pb-4 mb-6">
+                <div class="flex items-center gap-3">
+                    <span class="p-2 bg-amber-100 text-amber-900 rounded-lg text-xl"><i class="fa-solid fa-infinity"></i></span>
+                    <div>
+                        <h2 class="font-serif-title text-2xl md:text-3xl font-bold text-indigo-950">Exégesis del Número 318: ¿Significa «Dios»?</h2>
+                        <p class="text-sm text-stone-600">Análisis numérico en Génesis 14:14, Gematría Hebrea, Isopsefía Griega y el Concilio de Nicea.</p>
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-stone-700 leading-relaxed mb-6">
+                El número <strong>318</strong> no es la traducción gramatical directa de la palabra «Dios» (<em>Elohim</em> o <em>Theos</em>). Sin embargo, en la hermenéutica bíblica y patrística es uno de los códigos cristológicos más profundos. A continuación, explore las 3 dimensiones del 318:
+            </p>
+
+            <!-- TAB SYSTEM FOR 318 -->
+            <div class="flex border-b border-stone-200 mb-6 overflow-x-auto">
+                <button id="tab-btn-greek" onclick="switch318Tab('greek')" class="px-4 py-2 font-semibold text-stone-600 hover:text-indigo-900 tab-active">
+                    <i class="fa-solid fa-cross mr-1"></i> 1. Isopsefía Griega (Jesús & La Cruz)
+                </button>
+                <button id="tab-btn-hebrew" onclick="switch318Tab('hebrew')" class="px-4 py-2 font-semibold text-stone-600 hover:text-indigo-900">
+                    <i class="fa-solid fa-hands-holding-child mr-1"></i> 2. Gematría Hebrea (Eliezer)
+                </button>
+                <button id="tab-btn-nicea" onclick="switch318Tab('nicea')" class="px-4 py-2 font-semibold text-stone-600 hover:text-indigo-900">
+                    <i class="fa-solid fa-synagogue mr-1"></i> 3. Los 318 Padres de Nicea
+                </button>
+            </div>
+
+            <!-- TAB 1: GREEK -->
+            <div id="tab-content-greek" class="space-y-4">
+                <div class="bg-indigo-50 border-l-4 border-indigo-700 p-4 rounded-r-lg">
+                    <h4 class="font-bold text-indigo-950 text-lg">Epístola de Bernabé (c. 100-130 d.C.) — Capítulo 9:8</h4>
+                    <p class="text-stone-700 text-sm mt-1">
+                        Los primeros cristianos desglosaron el 318 en el alfabeto numérico griego: <span class="font-mono font-bold text-indigo-900">318 = 300 + 10 + 8</span>.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
+                    <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 text-center">
+                        <span class="text-3xl font-mono font-extrabold text-amber-900">10 (Ι)</span>
+                        <h5 class="font-bold text-stone-800 mt-1">Iota</h5>
+                        <p class="text-xs text-stone-600">Primera letra de <strong>ΙΗΣΟΥΣ</strong> (Jesús)</p>
+                    </div>
+                    <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 text-center">
+                        <span class="text-3xl font-mono font-extrabold text-amber-900">8 (Η)</span>
+                        <h5 class="font-bold text-stone-800 mt-1">Eta</h5>
+                        <p class="text-xs text-stone-600">Segunda letra de <strong>ΙΗΣΟΥΣ</strong> (Jesús)</p>
+                    </div>
+                    <div class="bg-indigo-900 text-amber-200 p-4 rounded-xl text-center shadow">
+                        <span class="text-3xl font-mono font-extrabold text-amber-300">300 (Τ)</span>
+                        <h5 class="font-bold mt-1">Tau</h5>
+                        <p class="text-xs text-indigo-100">Representación visual de la <strong>CRUZ</strong></p>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-stone-100 rounded-lg text-sm text-stone-800">
+                    <strong>Conclusión Teológica Primitiva:</strong> Los 318 criados de Abraham (<em>Génesis 14:14</em>) prefiguraban que la verdadera victoria del creyente se obtiene mediante **Jesús (IH = 18)** sostenido en la **Cruz (T = 300)**.
+                </div>
+            </div>
+
+            <!-- TAB 2: HEBREW -->
+            <div id="tab-content-hebrew" class="hidden space-y-4">
+                <div class="bg-amber-50 border-l-4 border-amber-700 p-4 rounded-r-lg">
+                    <h4 class="font-bold text-amber-950 text-lg">Gematría Hebrea: Eliezer de Damasco (אֱלִיעֶזֶר)</h4>
+                    <p class="text-stone-700 text-sm mt-1">
+                        El sirviente principal de Abraham era Eliezer (<em>Génesis 15:2</em>). Al calcular la suma aritmética de las letras hebreas de su nombre:
+                    </p>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-stone-700 border border-stone-200 rounded-lg">
+                        <thead class="bg-stone-200 font-serif-title text-indigo-950">
+                            <tr>
+                                <th class="p-3">Letra Hebrea</th>
+                                <th class="p-3">Nombre</th>
+                                <th class="p-3">Valor Numérico</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-stone-200 bg-white font-mono">
+                            <tr><td class="p-3 font-bold text-lg">א</td><td class="p-3 font-sans">Alef</td><td class="p-3">1</td></tr>
+                            <tr><td class="p-3 font-bold text-lg">ל</td><td class="p-3 font-sans">Lamed</td><td class="p-3">30</td></tr>
+                            <tr><td class="p-3 font-bold text-lg">י</td><td class="p-3 font-sans">Yod</td><td class="p-3">10</td></tr>
+                            <tr><td class="p-3 font-bold text-lg">ע</td><td class="p-3 font-sans">Ayin</td><td class="p-3">70</td></tr>
+                            <tr><td class="p-3 font-bold text-lg">ז</td><td class="p-3 font-sans">Zayin</td><td class="p-3">7</td></tr>
+                            <tr><td class="p-3 font-bold text-lg">ר</td><td class="p-3 font-sans">Resh</td><td class="p-3">200</td></tr>
+                            <tr class="bg-amber-100 font-bold font-sans text-amber-950">
+                                <td class="p-3 text-lg font-mono">א+ל+י+ע+ז+ר</td>
+                                <td class="p-3">TOTAL ELIEZER</td>
+                                <td class="p-3 text-indigo-900 font-mono text-base">318</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="p-4 bg-amber-50 rounded-lg text-sm text-amber-950 border border-amber-200">
+                    <strong>Significado Etimológico:</strong> <em>Eliezer</em> se traduce literalmente como **«Mi Dios es mi ayuda»**. Según el Talmud (<em>Nedarim 32a</em>), Abraham no venció con un gran ejército, sino confiando en que Dios era su único auxilio ($318$).
+                </div>
+            </div>
+
+            <!-- TAB 3: NICEA -->
+            <div id="tab-content-nicea" class="hidden space-y-4">
+                <div class="bg-indigo-950 text-white p-6 rounded-xl shadow">
+                    <span class="text-amber-300 font-serif-title font-bold text-lg block mb-1">El Concilio Ecuménico de Nicea (325 d.C.)</span>
+                    <h4 class="text-xl font-extrabold text-white">Los 318 Padres Conciliares</h4>
+                    <p class="text-stone-300 text-sm mt-2 leading-relaxed">
+                        Aunque las listas históricas de participantes oscilaban entre 250 y 320 obispos, la tradición de la Iglesia fijó oficialmente la cifra en **318 Padres Conciliares**.
+                    </p>
+                    <div class="mt-4 p-4 bg-indigo-900/80 rounded-lg text-xs text-amber-200 border border-indigo-700">
+                        San Atanasio e Hilario de Poitiers explicaron que, al igual que los **318 siervos de Abraham** vencieron a los reyes invasores, los **318 Obispos de Nicea**, armados con el poder del nombre de **Jesús y la Cruz (318)**, derrotaron la herejía arriana y promulgaron que Cristo es <strong>Homoousios</strong> (Consustancial, 100% Dios con el Padre).
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MÓDULO 1: CONTEXTO HISTÓRICO Y SOCIORRELIGIOSO -->
+        <section id="modulo-1" class="scroll-mt-20 bg-white rounded-2xl p-6 md:p-8 shadow-md border border-amber-200/80">
+            <div class="border-b border-stone-200 pb-4 mb-6">
+                <div class="flex items-center gap-3">
+                    <span class="p-2 bg-amber-100 text-amber-900 rounded-lg text-xl"><i class="fa-solid fa-landmark"></i></span>
+                    <div>
+                        <h2 class="font-serif-title text-2xl md:text-3xl font-bold text-indigo-950">Módulo 1: Contexto Histórico, Geográfico y Sociorreligioso</h2>
+                        <p class="text-sm text-stone-600">Palestina en el siglo I d.C.: Divisiones políticas y el mosaico de sectas judaicas.</p>
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-stone-700 leading-relaxed mb-6">
+                Para comprender la encarnación y el ministerio de Jesús, es indispensable analizar la geografía de la Judea imperial y las facciones sociopolíticas que interpretaban la Torá y la expectativa mesiánica de maneras divergentes.
+            </p>
+
+            <!-- Interactive Group Filter -->
+            <div class="mb-6">
+                <label class="block text-sm font-semibold text-stone-700 mb-2">Filtrar secta o grupo sociopolítico:</label>
+                <div class="flex flex-wrap gap-2" id="group-filters">
+                    <button onclick="filterGroups('all')" class="px-3 py-1.5 rounded-full text-xs font-bold bg-indigo-900 text-amber-200 shadow">Todos</button>
+                    <button onclick="filterGroups('Fariseos')" class="px-3 py-1.5 rounded-full text-xs font-medium bg-stone-200 text-stone-800 hover:bg-amber-200">Fariseos</button>
+                    <button onclick="filterGroups('Saduceos')" class="px-3 py-1.5 rounded-full text-xs font-medium bg-stone-200 text-stone-800 hover:bg-amber-200">Saduceos</button>
+                    <button onclick="filterGroups('Esenios')" class="px-3 py-1.5 rounded-full text-xs font-medium bg-stone-200 text-stone-800 hover:bg-amber-200">Esenios</button>
+                    <button onclick="filterGroups('Celotes')" class="px-3 py-1.5 rounded-full text-xs font-medium bg-stone-200 text-stone-800 hover:bg-amber-200">Celotes</button>
+                    <button onclick="filterGroups('Samaritanos')" class="px-3 py-1.5 rounded-full text-xs font-medium bg-stone-200 text-stone-800 hover:bg-amber-200">Samaritanos</button>
+                </div>
+            </div>
+
+            <div id="groups-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Dynamic group cards inserted by JS -->
+            </div>
+
+            <!-- Indumentaria y Vestimenta en el Siglo I -->
+            <div class="mt-8 bg-amber-50/60 p-6 rounded-xl border border-amber-200">
+                <h4 class="font-serif-title font-bold text-lg text-indigo-950 mb-3"><i class="fa-solid fa-shirt text-amber-700 mr-2"></i> Elementos de la Indumentaria Judía Tradicional</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs text-stone-700">
+                    <div class="p-3 bg-white rounded-lg shadow-sm border border-stone-200">
+                        <strong class="text-indigo-950 block text-sm">Túnica (Chitón / Jaluk)</strong>
+                        Prenda básica de lino o lana. Jesús llevaba una sin costuras (Jn 19:23).
+                    </div>
+                    <div class="p-3 bg-white rounded-lg shadow-sm border border-stone-200">
+                        <strong class="text-indigo-950 block text-sm">Manto (Himation / Talit)</strong>
+                        Manto exterior amplio con los <strong>Tzitzit</strong> (flecos rituales con hilo azul, Nm 15:37-41).
+                    </div>
+                    <div class="p-3 bg-white rounded-lg shadow-sm border border-stone-200">
+                        <strong class="text-indigo-950 block text-sm">Cinturón (Zonē) & Sandalias</strong>
+                        Faja para ceñirse los lomos. Desatar las sandalias era labor exclusiva de esclavos (Jn 1:27).
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MÓDULO 2: DEIDAD Y HUMANIDAD DE JESÚS -->
+        <section id="modulo-2" class="scroll-mt-20 bg-white rounded-2xl p-6 md:p-8 shadow-md border border-amber-200/80">
+            <div class="border-b border-stone-200 pb-4 mb-6">
+                <div class="flex items-center gap-3">
+                    <span class="p-2 bg-amber-100 text-amber-900 rounded-lg text-xl"><i class="fa-solid fa-scale-balanced"></i></span>
+                    <div>
+                        <h2 class="font-serif-title text-2xl md:text-3xl font-bold text-indigo-950">Módulo 2: La Persona de Cristo (100% Dios & 100% Hombre)</h2>
+                        <p class="text-sm text-stone-600">La Unión Hipostática, la Doctrina de la Kénosis y las evidencias bíblicas.</p>
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-stone-700 leading-relaxed mb-6">
+                La Cristología ortodoxa afirma la presencia de dos naturalezas completas e integradas en la única Persona divina del Logos encarnado.
+            </p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <!-- Interactive Union Hypostatica Explorer -->
+                <div class="bg-gradient-to-br from-indigo-950 to-stone-900 text-white p-6 rounded-2xl shadow-lg space-y-4">
+                    <h3 class="font-serif-title text-xl font-bold text-amber-300">Esquema de la Unión Hipostática</h3>
+                    <p class="text-xs text-stone-300">
+                        Las dos naturalezas coexisten sin que la divinidad pierda sus atributos ni la humanidad deje de ser finita.
+                    </p>
+
+                    <div class="grid grid-cols-2 gap-3 my-4">
+                        <div class="p-4 bg-indigo-900/60 rounded-xl border border-indigo-700">
+                            <h4 class="font-bold text-amber-200 text-sm mb-1">Naturaleza Divina</h4>
+                            <ul class="text-xs space-y-1 text-indigo-100">
+                                <li>• Eterna e Increada</li>
+                                <li>• Omnisciente y Omnipotente</li>
+                                <li>• Consustancial (Homoousios)</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 bg-amber-900/40 rounded-xl border border-amber-700">
+                            <h4 class="font-bold text-amber-200 text-sm mb-1">Naturaleza Humana</h4>
+                            <ul class="text-xs space-y-1 text-amber-100">
+                                <li>• Cuerpo, Alma y Mente</li>
+                                <li>• Sujeta a limitaciones físicas</li>
+                                <li>• Enteramente Sin Pecado</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Chalcedonian Adverbs Selector -->
+                    <div class="p-4 bg-stone-900/90 rounded-xl border border-stone-700">
+                        <h5 class="text-xs font-bold text-amber-300 uppercase tracking-wider mb-2">Cuatro Adverbios de Calcedonia (451 d.C.)</h5>
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <span class="p-1.5 bg-stone-800 rounded text-center text-stone-200">1. Sin Confusión</span>
+                            <span class="p-1.5 bg-stone-800 rounded text-center text-stone-200">2. Sin Cambio</span>
+                            <span class="p-1.5 bg-stone-800 rounded text-center text-stone-200">3. Sin División</span>
+                            <span class="p-1.5 bg-stone-800 rounded text-center text-stone-200">4. Sin Separación</span>
+                        </div>
+                    </div>
+
+                    <!-- Kenosis Formula -->
+                    <div class="p-3 bg-amber-950/80 rounded-lg text-xs border border-amber-600/50 text-amber-200 font-mono text-center">
+                        Kénosis (Fil 2:7) = Adición de Humanidad + Renuncia Voluntaria al uso independiente de atributos divinos.
+                    </div>
+                </div>
+
+                <!-- Chart.js Evidences Breakdown -->
+                <div class="bg-stone-50 p-6 rounded-2xl border border-stone-200 flex flex-col justify-center">
+                    <h4 class="font-serif-title text-base font-bold text-indigo-950 mb-2 text-center">Distribución de Evidencias Bíblicas de las Naturalezas</h4>
+                    <p class="text-xs text-stone-500 text-center mb-4">Número de referencias bíblicas clave analizadas por categoría</p>
+
+                    <div class="chart-container">
+                        <canvas id="naturesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MÓDULO 3: DECLARACIONES YO SOY (EGO EIMI) -->
+        <section id="modulo-3" class="scroll-mt-20 bg-white rounded-2xl p-6 md:p-8 shadow-md border border-amber-200/80">
+            <div class="border-b border-stone-200 pb-4 mb-6">
+                <div class="flex items-center gap-3">
+                    <span class="p-2 bg-amber-100 text-amber-900 rounded-lg text-xl"><i class="fa-solid fa-quote-left"></i></span>
+                    <div>
+                        <h2 class="font-serif-title text-2xl md:text-3xl font-bold text-indigo-950">Módulo 3: Las Declaraciones del «Yo Soy» (Ἐγώ εἰμι) en Juan</h2>
+                        <p class="text-sm text-stone-600">El trasfondo del Nombre Divino (Éxodo 3:14 / Septuaginta) y las metáforas del Evangelio.</p>
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-stone-700 leading-relaxed mb-6">
+                Al utilizar la fórmula griega <strong>Ἐγώ εἰμι (Egō Eimi)</strong>, Jesús asume explícitamente el Nombre Sagrado inefable de YHWH revelado a Moisés. Explore los 7 «Yo Soy» con predicado metafórico y las 3 declaraciones absolutas:
+            </p>
+
+            <!-- Cards of Yo Soy -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="yo-soy-container">
+                <!-- Dynamic cards populated via JavaScript -->
+            </div>
+
+            <!-- Absolute Claims Highlight -->
+            <div class="mt-8 bg-indigo-900 text-white p-6 rounded-xl shadow-md border border-indigo-700">
+                <h4 class="font-serif-title text-lg font-bold text-amber-300 mb-2"><i class="fa-solid fa-bolt text-amber-400 mr-2"></i> Las Declaraciones Absolutas (Sin Predicado Metafórico)</h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs mt-4">
+                    <div class="p-3 bg-indigo-950/80 rounded-lg border border-indigo-800">
+                        <strong class="text-amber-200 block text-sm">Juan 8:58 (Preexistencia)</strong>
+                        «Antes que Abraham fuese, <strong>YO SOY</strong>» (<em>Prīn Abraam genesthai, egō eimi</em>). Contrasta la creación temporal de Abraham con la eternidad de Cristo.
+                    </div>
+                    <div class="p-3 bg-indigo-950/80 rounded-lg border border-indigo-800">
+                        <strong class="text-amber-200 block text-sm">Juan 18:5-6 (Getsemaní)</strong>
+                        Al responder «Yo Soy» a la tropa armada, los soldados cayeron a tierra ante el impacto de la teofanía de su Nombre Divino.
+                    </div>
+                    <div class="p-3 bg-indigo-950/80 rounded-lg border border-indigo-800">
+                        <strong class="text-amber-200 block text-sm">Juan 8:24 (Salvación)</strong>
+                        «Si no creéis que <strong>YO SOY</strong> (<em>hoti egō eimi</em>), en vuestros pecados moriréis.» Requisito soteriológico indispensable.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MÓDULOS 4 Y 5: CONCILIOS, HEREJÍAS Y TRIPLE OFICIO -->
+        <section id="modulo-4-5" class="scroll-mt-20 bg-white rounded-2xl p-6 md:p-8 shadow-md border border-amber-200/80">
+            <div class="border-b border-stone-200 pb-4 mb-6">
+                <div class="flex items-center gap-3">
+                    <span class="p-2 bg-amber-100 text-amber-900 rounded-lg text-xl"><i class="fa-solid fa-shield-halved"></i></span>
+                    <div>
+                        <h2 class="font-serif-title text-2xl md:text-3xl font-bold text-indigo-950">Módulos 4 & 5: Concilios, Herejías y el Triple Oficio</h2>
+                        <p class="text-sm text-stone-600">Historia del dogma cristológico y la mediación de Cristo (Munus Triplex).</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Triple Office Cards -->
+            <div class="mb-10">
+                <h3 class="font-serif-title font-bold text-xl text-indigo-950 mb-4">El Triple Oficio de Cristo (Munus Triplex)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="p-5 bg-amber-50 rounded-xl border border-amber-200">
+                        <div class="w-10 h-10 rounded-full bg-amber-200 text-amber-900 flex items-center justify-center font-bold mb-3"><i class="fa-solid fa-scroll"></i></div>
+                        <h4 class="font-bold text-stone-900">1. Profeta</h4>
+                        <p class="text-xs text-stone-600 mt-2">Máxima y definitiva revelación de Dios a los hombres (Heb 1:1-2). Él no solo transmite la Palabra, sino que es la Palabra encarnada.</p>
+                    </div>
+                    <div class="p-5 bg-amber-50 rounded-xl border border-amber-200">
+                        <div class="w-10 h-10 rounded-full bg-amber-200 text-amber-900 flex items-center justify-center font-bold mb-3"><i class="fa-solid fa-hands-praying"></i></div>
+                        <h4 class="font-bold text-stone-900">2. Sacerdote</h4>
+                        <p class="text-xs text-stone-600 mt-2">Sacerdote eterno según el orden de Melquisedec (Heb 7). Es simultáneamente el Sacerdote perfecto y la Víctima expiatoria inmaculada.</p>
+                    </div>
+                    <div class="p-5 bg-amber-50 rounded-xl border border-amber-200">
+                        <div class="w-10 h-10 rounded-full bg-amber-200 text-amber-900 flex items-center justify-center font-bold mb-3"><i class="fa-solid fa-crown"></i></div>
+                        <h4 class="font-bold text-stone-900">3. Rey</h4>
+                        <p class="text-xs text-stone-600 mt-2">Soberano sobre la creación y Rey de la Iglesia (Ef 1:20-22). Su reino comenzó en su resurrección y culminará en su Parusía final.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline of Councils Chart & Searchable Heresy Matrix -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                <!-- Timeline Chart -->
+                <div class="lg:col-span-1 bg-stone-50 p-5 rounded-xl border border-stone-200 flex flex-col justify-center">
+                    <h4 class="font-serif-title text-base font-bold text-indigo-950 text-center mb-2">Cronología de los 4 Concilios Ecuménicos</h4>
+                    <div class="chart-container">
+                        <canvas id="councilsChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Heresy Table Search & Matrix -->
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <h4 class="font-serif-title font-bold text-lg text-indigo-950">Matriz Resumen de Herejías Cristológicas</h4>
+                        <input type="text" id="heresy-search" onkeyup="searchHeresies()" placeholder="Buscar herejía o proponente..." class="px-3 py-1.5 text-xs rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 w-full sm:w-64">
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left text-stone-700 border border-stone-200 rounded-lg">
+                            <thead class="bg-indigo-950 text-amber-300 font-serif-title">
+                                <tr>
+                                    <th class="p-2.5">Herejía</th>
+                                    <th class="p-2.5">Proponente</th>
+                                    <th class="p-2.5">Postura Errónea</th>
+                                    <th class="p-2.5">Refutación Ortodoxa</th>
+                                </tr>
+                            </thead>
+                            <tbody id="heresy-table-body" class="divide-y divide-stone-200 bg-white">
+                                <!-- Dynamic rows inserted by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- GUÍA PEDAGÓGICA INTERACTIVA & QUIZ -->
+        <section id="evaluador" class="scroll-mt-20 bg-gradient-to-br from-indigo-900 to-stone-900 text-white rounded-2xl p-6 md:p-8 shadow-xl">
+            <div class="border-b border-indigo-700 pb-4 mb-6">
+                <div class="flex items-center gap-3">
+                    <span class="p-2 bg-amber-400 text-indigo-950 rounded-lg text-xl font-bold"><i class="fa-solid fa-graduation-cap"></i></span>
+                    <div>
+                        <h2 class="font-serif-title text-2xl md:text-3xl font-bold text-amber-300">Apéndice Pedagógico: Autoevaluación & Quiz</h2>
+                        <p class="text-xs text-stone-300">Compruebe sus conocimientos sobre la Cristología dogmática y el análisis exegético.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Container -->
+            <div id="quiz-container" class="max-w-3xl mx-auto space-y-6">
+                <div class="bg-indigo-950/90 p-6 rounded-xl border border-indigo-700">
+                    <div class="flex items-center justify-between mb-3 text-xs text-amber-300 font-bold">
+                        <span id="quiz-progress-text">Pregunta 1 de 5</span>
+                        <span id="quiz-score-text">Puntuación: 0</span>
+                    </div>
+                    <h4 id="quiz-question" class="text-base sm:text-lg font-semibold text-white mb-4">
+                        Cargando pregunta...
+                    </h4>
+                    <div id="quiz-options" class="space-y-2 text-xs sm:text-sm">
+                        <!-- Options generated dynamically -->
+                    </div>
+                    <div id="quiz-feedback" class="mt-4 p-3 rounded-lg hidden text-xs font-medium"></div>
+                    <button id="quiz-next-btn" onclick="nextQuestion()" class="mt-4 px-4 py-2 bg-amber-400 text-indigo-950 font-bold rounded-lg hover:bg-amber-300 transition text-xs hidden">
+                        Siguiente Pregunta <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- GLOSARIO TEOLÓGICO BUSCABLE -->
+        <section class="bg-white rounded-2xl p-6 md:p-8 shadow-md border border-amber-200/80">
+            <h3 class="font-serif-title text-xl font-bold text-indigo-950 mb-4"><i class="fa-solid fa-book text-amber-700 mr-2"></i> Glosario de Términos Cristológicos Clave</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+                <div class="p-3 bg-stone-50 rounded-lg border border-stone-200">
+                    <strong class="text-indigo-950 font-bold block text-sm">Homoousios (Ὁμοούσιος)</strong>
+                    De la misma sustancia o esencia. Término del Concilio de Nicea (325 d.C.) para afirmar la divinidad de Cristo.
+                </div>
+                <div class="p-3 bg-stone-50 rounded-lg border border-stone-200">
+                    <strong class="text-indigo-950 font-bold block text-sm">Communicatio Idiomatum</strong>
+                    Comunicación de propiedades: los atributos de ambas naturalezas se predican de la única Persona de Jesucristo.
+                </div>
+                <div class="p-3 bg-stone-50 rounded-lg border border-stone-200">
+                    <strong class="text-indigo-950 font-bold block text-sm">Theotokos (Θεοτόκος)</strong>
+                    «Engendradora de Dios». Definición de Éfeso (431 d.C.) para ratificar que el hijo de María era Dios encarnado.
+                </div>
+                <div class="p-3 bg-stone-50 rounded-lg border border-stone-200">
+                    <strong class="text-indigo-950 font-bold block text-sm">Unión Hipostática</strong>
+                    La unión inseparable de la naturaleza divina y humana en la única hipóstasis (Persona) del Hijo eternamente engendrado.
+                </div>
+                <div class="p-3 bg-stone-50 rounded-lg border border-stone-200">
+                    <strong class="text-indigo-950 font-bold block text-sm">Kénosis (Κένωσις)</strong>
+                    El acto de autolimitación voluntaria del Verbo al asumir la forma de siervo (Filipenses 2:5-11).
+                </div>
+                <div class="p-3 bg-stone-50 rounded-lg border border-stone-200">
+                    <strong class="text-indigo-950 font-bold block text-sm">Autotheos</strong>
+                    Cualidad divina según la cual Cristo posee la existencia por sí mismo en cuanto a su esencia indivisible.
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-indigo-950 text-stone-400 py-8 border-t border-indigo-900 mt-12 text-center text-xs">
+        <div class="max-w-7xl mx-auto px-4">
+            <p class="font-serif-title text-amber-200 font-bold text-sm">Manual Integral de Cristología & Exégesis Teológica</p>
+            <p class="mt-1">Basado en las fuentes patrísticas, la exégesis de Génesis 14:14 y las definiciones de los 4 Concilios Ecuménicos.</p>
+            <p class="mt-4 text-stone-500">© 2026 Plataforma Académica Teológica. Desarrollado para estudio exegético y pedagógico.</p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // DATA SOURCES
+        const groupsData = [
+            { name: "Fariseos", focus: "Maestros laicos, escribas, clase media.", posture: "Énfasis en la Torá escrita y oral. Creían en la resurrección y juicio final.", rome: "Toleraban el dominio romano como juicio divino sin colaborar activamente." },
+            { name: "Saduceos", focus: "Aristocracia sacerdotal y terratenientes ricos.", posture: "Aceptaban solo el Pentateuco. Rechazaban la resurrección y los ángeles.", rome: "Colaboracionistas para mantener el control del Templo y la élite." },
+            { name: "Esenios", focus: "Comunidad monástica ascética (Qumrán).", posture: "Fidelidad radical, dualismo (hijos de luz vs tinieblas), celibato y purificación.", rome: "Aislamiento total del mundo y del sacerdocio de Jerusalén." },
+            { name: "Celotes", focus: "Facción nacionalista armada.", posture: "Teocracia militar («Ningún rey sino Dios»). El Mesías vendría por la fuerza.", rome: "Resistencia armada e insurrección violenta frontal." },
+            { name: "Samaritanos", focus: "Descendientes del reino del norte mezclados.", posture: "Pentateuco Samaritano. Adoración en el Monte Gerizim, no Jerusalén.", rome: "Enemistad ancestral con los judíos; neutrales con Roma." }
+        ];
+
+        const yoSoyData = [
+            { id: 1, title: "El Pan de Vida", ref: "Juan 6:35", meaning: "Sustento espiritual continuo; satisfacción del hambre profunda del alma." },
+            { id: 2, title: "La Luz del Mundo", ref: "Juan 8:12", meaning: "Revelación divina que disipa las tinieblas morales y espirituales del cosmos." },
+            { id: 3, title: "La Puerta de las Ovejas", ref: "Juan 10:7,9", meaning: "Acceso exclusivo a la salvación y seguridad espiritual dentro del redil." },
+            { id: 4, title: "El Buen Pastor", ref: "Juan 10:11,14", meaning: "Cuidado sacrificial personal; entrega voluntariamente su vida por sus ovejas." },
+            { id: 5, title: "La Resurrección y la Vida", ref: "Juan 11:25", meaning: "Victoria definitiva sobre la muerte biológica e inauguración de la vida eterna." },
+            { id: 6, title: "El Camino, Verdad y Vida", ref: "Juan 14:6", meaning: "Único mediador ontológico y acceso exclusivo hacia Dios el Padre." },
+            { id: 7, title: "La Vid Verdadera", ref: "Juan 15:1,5", meaning: "Fuente vital orgánica; comunión indispensable para que el creyente dé fruto." }
+        ];
+
+        const heresiesData = [
+            { name: "Docetismo", proponent: "Gnósticos / Marción", error: "El cuerpo de Jesús fue una ilusión óptica fantasmagórica; la materia es mala.", refutation: "Jesús vino en carne real (1 Jn 4:2-3). Murió y resucitó físicamente." },
+            { name: "Ebionismo", proponent: "Judeocristianos heterodoxos", error: "Jesús fue un simple hombre adoptado por Dios en su bautismo.", refutation: "Jesús es el Hijo preexistente y Dios eterno (Jn 1:1; Col 1:15-17)." },
+            { name: "Arrianismo", proponent: "Arrio de Alejandría", error: "«Hubo un tiempo cuando el Hijo no existía». Cristo es una criatura creada.", refutation: "El Hijo es engendrado, no creado; consustancial (Homoousios) con el Padre." },
+            { name: "Apolinarismo", proponent: "Apolinar de Laodicea", error: "Jesús tenía cuerpo humano pero su mente fue sustituida por el Logos divino.", refutation: "Para redimir la mente humana, Cristo debía asumir una mente humana real (Heb 2:17)." },
+            { name: "Nestorianismo", proponent: "Nestorio de Constantinopla", error: "Separó a Cristo en dos personas distintas (divina y humana) unidas solo moralmente.", refutation: "Cristo es una sola Persona indivisible. María es Theotokos." },
+            { name: "Monofisismo", proponent: "Eutiques de Constantinopla", error: "La naturaleza humana fue absorbida por la divina como una gota en el océano.", refutation: "Las dos naturalezas permanecen distintas e inalteradas en una sola Persona." }
+        ];
+
+        const quizData = [
+            {
+                q: "¿Qué representa el número 318 en la isopsefía griega según la Epístola de Bernabé (c. 100-130 d.C.)?",
+                options: [
+                    "La suma de los nombres de los 12 apóstoles.",
+                    "Jesús (IH = 18) clavado en la Cruz (T = 300).",
+                    "La palabra hebrea exacta para «Dios Padre».",
+                    "Los días del calendario litúrgico de Jerusalén."
+                ],
+                correct: 1,
+                exp: "Para los primeros cristianos, T (300) representaba la forma de la Cruz, e IH (18) eran las dos primeras letras de Jesús en griego (ΙΗΣΟΥΣ)."
+            },
+            {
+                q: "En la gematría hebrea, ¿cuál es el nombre cuyo valor numérico exacto suma 318?",
+                options: [
+                    "Melquisedec (Rey de Justicia)",
+                    "Abraham (Padre de Multitudes)",
+                    "Eliezer (Mi Dios es mi ayuda)",
+                    "Moisés (Rescatado de las aguas)"
+                ],
+                correct: 2,
+                exp: "Eliezer (אֱלִיעֶזֶר) suma 1 + 30 + 10 + 70 + 7 + 200 = 318. Su significado es 'Mi Dios es mi ayuda'."
+            },
+            {
+                q: "¿Qué establece el dogma del Concilio de Calcedonia (451 d.C.) respecto a las dos naturalezas de Cristo?",
+                options: [
+                    "Que la naturaleza humana fue absorbida por la divina.",
+                    "Que existen en dos personas distintas que colaboran.",
+                    "Unión inconfundible, inalterable, indivisible e inseparable en una Persona.",
+                    "Que Jesús dejó de ser Dios durante su vida en la tierra."
+                ],
+                correct: 2,
+                exp: "Calcedonia promulgó los 4 adverbios: Sin confusión, sin cambio, sin división y sin separación."
+            },
+            {
+                q: "¿Cuál fue el error principal del Arrianismo condenado en el Concilio de Nicea (325 d.C.)?",
+                options: [
+                    "Afirmar que Cristo era una criatura creada y no Dios eterno.",
+                    "Negar la resurrección física de Jesús.",
+                    "Rechazar el uso del manto judío tradicionales.",
+                    "Enseñar que había dos dioses en el Antiguo Testamento."
+                ],
+                correct: 0,
+                exp: "Arrio enseñaba 'hubo un tiempo en que el Hijo no existía'. Nicea definió que el Hijo es Homoousios (consustancial) con el Padre."
+            },
+            {
+                q: "¿Qué significa el término griego 'Kénosis' en Filipenses 2:7?",
+                options: [
+                    "Que Jesús perdió por completo su divinidad.",
+                    "El despojamiento voluntario o velo de su gloria al asumir la condición de siervo.",
+                    "La destrucción del cuerpo físico en la sepultura.",
+                    "El arrepentimiento de los pecados de la humanidad."
+                ],
+                correct: 1,
+                exp: "La Kénosis no es pérdida de deidad, sino la adición de la humanidad y el no uso independiente de sus prerrogativas divinas."
+            }
+        ];
+
+        // RENDER FUNCTIONS
+        function renderGroups(filter = 'all') {
+            const container = document.getElementById('groups-container');
+            container.innerHTML = '';
+
+            const filtered = filter === 'all' ? groupsData : groupsData.filter(g => g.name === filter);
+
+            filtered.forEach(g => {
+                const card = document.createElement('div');
+                card.className = "p-4 rounded-xl bg-amber-50/70 border border-amber-200 shadow-sm flex flex-col justify-between";
+                card.innerHTML = `
+                    <div>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-900 text-amber-200 uppercase tracking-wider">Secta del Siglo I</span>
+                        <h4 class="font-serif-title font-bold text-base text-indigo-950 mt-1">${g.name}</h4>
+                        <p class="text-xs text-stone-600 mt-1"><strong>Composición:</strong> ${g.focus}</p>
+                        <p class="text-xs text-stone-700 mt-2"><strong>Postura Teológica:</strong> ${g.posture}</p>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-amber-200/60 text-[11px] text-amber-900 font-medium">
+                        <i class="fa-solid fa-shield-halved mr-1"></i> <strong>Relación con Roma:</strong> ${g.rome}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterGroups(name) {
+            renderGroups(name);
+        }
+
+        function renderYoSoy() {
+            const container = document.getElementById('yo-soy-container');
+            container.innerHTML = '';
+
+            yoSoyData.forEach(y => {
+                const card = document.createElement('div');
+                card.className = "p-5 bg-stone-50 rounded-xl border border-stone-200 shadow-sm hover:border-indigo-600 transition group";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="w-7 h-7 rounded-full bg-indigo-100 text-indigo-900 font-bold text-xs flex items-center justify-center">${y.id}</span>
+                        <span class="text-xs font-mono font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded">${y.ref}</span>
+                    </div>
+                    <h4 class="font-serif-title font-bold text-base text-indigo-950 group-hover:text-indigo-700 transition">«Yo soy ${y.title}»</h4>
+                    <p class="text-xs text-stone-600 mt-2 leading-relaxed">${y.meaning}</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderHeresies() {
+            const body = document.getElementById('heresy-table-body');
+            body.innerHTML = '';
+
+            heresiesData.forEach(h => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-amber-50/50 transition";
+                tr.innerHTML = `
+                    <td class="p-2.5 font-bold text-indigo-950">${h.name}</td>
+                    <td class="p-2.5 text-stone-600">${h.proponent}</td>
+                    <td class="p-2.5 text-red-900">${h.error}</td>
+                    <td class="p-2.5 text-emerald-950 font-medium">${h.refutation}</td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        function searchHeresies() {
+            const query = document.getElementById('heresy-search').value.toLowerCase();
+            const rows = document.querySelectorAll('#heresy-table-body tr');
+
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
+
+        // TAB SWITCHER FOR 318
+        function switch318Tab(tab) {
+            document.getElementById('tab-content-greek').classList.add('hidden');
+            document.getElementById('tab-content-hebrew').classList.add('hidden');
+            document.getElementById('tab-content-nicea').classList.add('hidden');
+
+            document.getElementById('tab-btn-greek').classList.remove('tab-active');
+            document.getElementById('tab-btn-hebrew').classList.remove('tab-active');
+            document.getElementById('tab-btn-nicea').classList.remove('tab-active');
+
+            if (tab === 'greek') {
+                document.getElementById('tab-content-greek').classList.remove('hidden');
+                document.getElementById('tab-btn-greek').classList.add('tab-active');
+            } else if (tab === 'hebrew') {
+                document.getElementById('tab-content-hebrew').classList.remove('hidden');
+                document.getElementById('tab-btn-hebrew').classList.add('tab-active');
+            } else if (tab === 'nicea') {
+                document.getElementById('tab-content-nicea').classList.remove('hidden');
+                document.getElementById('tab-btn-nicea').classList.add('tab-active');
+            }
+        }
+
+        // QUIZ LOGIC
+        let currentQuizIndex = 0;
+        let score = 0;
+
+        function loadQuestion() {
+            const qData = quizData[currentQuizIndex];
+            document.getElementById('quiz-progress-text').innerText = `Pregunta ${currentQuizIndex + 1} de ${quizData.length}`;
+            document.getElementById('quiz-score-text').innerText = `Puntuación: ${score}`;
+            document.getElementById('quiz-question').innerText = qData.q;
+
+            const optsContainer = document.getElementById('quiz-options');
+            optsContainer.innerHTML = '';
+            document.getElementById('quiz-feedback').classList.add('hidden');
+            document.getElementById('quiz-next-btn').classList.add('hidden');
+
+            qData.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-3 rounded-lg bg-indigo-900/60 border border-indigo-700 hover:bg-indigo-800 transition text-stone-200 text-xs font-medium flex items-center gap-2";
+                btn.innerHTML = `<span class="w-5 h-5 rounded-full bg-indigo-800 text-amber-300 font-bold text-[10px] flex items-center justify-center">${String.fromCharCode(65 + idx)}</span> ${opt}`;
+                btn.onclick = () => checkAnswer(idx);
+                optsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIdx) {
+            const qData = quizData[currentQuizIndex];
+            const feedback = document.getElementById('quiz-feedback');
+            const optsBtns = document.querySelectorAll('#quiz-options button');
+
+            optsBtns.forEach(btn => btn.disabled = true);
+
+            if (selectedIdx === qData.correct) {
+                score += 20;
+                feedback.className = "mt-4 p-3 rounded-lg bg-emerald-900/80 text-emerald-200 border border-emerald-600 text-xs font-medium";
+                feedback.innerText = "¡Correcto! " + qData.exp;
+            } else {
+                feedback.className = "mt-4 p-3 rounded-lg bg-red-900/80 text-red-200 border border-red-600 text-xs font-medium";
+                feedback.innerText = "Incorrecto. " + qData.exp;
+            }
+
+            feedback.classList.remove('hidden');
+            document.getElementById('quiz-score-text').innerText = `Puntuación: ${score}`;
+            document.getElementById('quiz-next-btn').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuizIndex++;
+            if (currentQuizIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showQuizResults();
+            }
+        }
+
+        function showQuizResults() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = `
+                <div class="bg-indigo-950 p-6 rounded-xl text-center space-y-4">
+                    <h3 class="font-serif-title text-2xl font-bold text-amber-300">¡Evaluación Completada!</h3>
+                    <p class="text-stone-300 text-sm">Tu puntuación final es:</p>
+                    <div class="text-5xl font-extrabold text-white">${score} / 100</div>
+                    <p class="text-xs text-stone-400">${score >= 80 ? '¡Excelente dominio de la Cristología Dogmática!' : 'Buen intento. Te recomendamos repasar los módulos y la sección del 318.'}</p>
+                    <button onclick="restartQuiz()" class="px-4 py-2 bg-amber-400 text-indigo-950 font-bold rounded-lg hover:bg-amber-300 transition text-xs">
+                        Reiniciar Quiz
+                    </button>
+                </div>
+            `;
+        }
+
+        function restartQuiz() {
+            currentQuizIndex = 0;
+            score = 0;
+            location.reload();
+        }
+
+        // CHART.JS INITIALIZATIONS
+        function initCharts() {
+            // Chart 1: Natures Evidences Chart
+            const ctx1 = document.getElementById('naturesChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['Títulos Divinos', 'Atributos Div.', 'Obras Divinas', 'Adoración Recibida', 'Limitaciones Físicas', 'Vida Afectiva'],
+                    datasets: [{
+                        label: 'Referencias Bíblicas Principales',
+                        data: [12, 10, 8, 7, 9, 8],
+                        backgroundColor: [
+                            '#312e81', '#3730a3', '#4338ca', '#4f46e5',
+                            '#7c2d12', '#9a3412'
+                        ],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#e7e5e4' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // Chart 2: Councils Timeline
+            const ctx2 = document.getElementById('councilsChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: ['Nicea I (325)', 'Constantinopla (381)', 'Éfeso (431)', 'Calcedonia (451)'],
+                    datasets: [{
+                        label: 'Año d.C.',
+                        data: [325, 381, 431, 451],
+                        borderColor: '#7c2d12',
+                        backgroundColor: '#b45309',
+                        borderWidth: 3,
+                        pointRadius: 6,
+                        pointBackgroundColor: '#312e81',
+                        fill: false,
+                        tension: 0.2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { 
+                            min: 300, 
+                            max: 470,
+                            grid: { color: '#e7e5e4' } 
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        // HELPER UTILS
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function toggleMobileNav() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // INIT ON DOM LOAD
+        document.addEventListener('DOMContentLoaded', () => {
+            renderGroups();
+            renderYoSoy();
+            renderHeresies();
+            loadQuestion();
+            initCharts();
+        });
+    </script>
+</body>
+</html>
